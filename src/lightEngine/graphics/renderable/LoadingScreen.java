@@ -34,7 +34,7 @@ public class LoadingScreen extends GUIScreen {
 
         material = new Material2D();
         material.setTextureName(backgroundTextureName);
-        vertices = new ArrayList<>();
+        vertices = new ArrayList<Vector2f>();
         uvs = new ArrayList<>();
 
         uvs.add(new Vector2f(0, 1));
