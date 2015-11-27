@@ -8,7 +8,10 @@ package lightEngine.gameObjects.modules.renderable;
 
 import lightEngine.graphics.GraphicsController;
 import lightEngine.graphics.Renderer;
+import lightEngine.util.input.Input;
 import lightEngine.util.math.vectors.VectorHelper;
+import lightEngine.util.time.TimeHelper;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -69,42 +72,6 @@ public class Camera extends ModuleRenderable {
         return viewProjectionMatrix;
 
     }
-
-    /*public void render() {
-
-        glLoadIdentity();
-
-        if (zoom == 0) {
-
-            glRotatef(parent.rotation.x, 1, 0, 0);
-            glRotatef(parent.rotation.y, 0, 1, 0);
-            glRotatef(parent.rotation.z, 0, 0, 1);
-
-            glTranslatef(-parent.position.x, -parent.position.y, -parent.position.z);
-
-        } else {
-
-            Vector3f up = new Vector3f(0, 1, 0);
-
-            if (parent.rotation.z != 0) {
-
-                float radiantRotation = (float) -Math.toRadians(parent.rotation.z);
-
-                Matrix3f zAxisRotationMatrix = new Matrix3f(
-                  new Vector3f((float) Math.cos(radiantRotation), (float) -Math.sin(radiantRotation), 0),
-                  new Vector3f((float) Math.sin(radiantRotation), (float) Math.cos(radiantRotation), 0),
-                  new Vector3f(0, 0, 1)
-                );
-
-                up = zAxisRotationMatrix.multiplyByVector(up);
-
-            }
-
-            gluLookAt(eye.x, eye.y, eye.z, parent.position.x, parent.position.y, parent.position.z, up.x, up.y, up.z);
-
-        }
-
-    }*/
 
     @Override
     public void addToRenderQueue() {

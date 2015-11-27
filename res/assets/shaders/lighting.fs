@@ -188,7 +188,7 @@ void main(void) {
                     float diffuseLightIntensity = lightStrengths[count] / difference;
                     diffuseLightIntensity *= max(0, dot(normal, -lightDirection));
 
-                    fragColor += vec3(ambientLightedTextureColor * diffuseLightIntensity * reflectionAssets[1] * lightColors[count]);
+                    fragColor += vec3(ambientLightedTextureColor * diffuseLightIntensity * reflectionAssets[1] * lightColors[count]) * inShadow;
 
                     if (specularLighting[count] == 1 && materialType >= 2) {
 
@@ -199,9 +199,7 @@ void main(void) {
                         float specularLightIntensity = max(0, dot(reflectionDirection, idealReflectionDirection));
                         specularLightIntensity = pow(specularLightIntensity, shininess);
 
-                        vec3 addition2 = vec3(specularLightIntensity * lightColors[count] * reflectionAssets[2]);
-                        if (shadowThrowing[count] == 1) addition2 = addition2 * inShadow;
-                        fragColor += addition2;
+                        fragColor += vec3(specularLightIntensity * lightColors[count] * reflectionAssets[2]) * inShadow;
 
                     }
 
@@ -225,9 +223,7 @@ void main(void) {
                     float specularLightIntensity = max(0, dot(reflectionDirection, idealReflectionDirection));
                     specularLightIntensity = pow(specularLightIntensity, shininess);
 
-                    vec3 addition3 = vec3(specularLightIntensity * lightColors[count] * reflectionAssets[2]);
-                    if (shadowThrowing[count] == 1) addition3 = addition3 * inShadow;
-                    fragColor += addition3;
+                    fragColor += vec3(specularLightIntensity * lightColors[count] * reflectionAssets[2]);
 
                 }
 

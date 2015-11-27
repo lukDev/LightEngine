@@ -11,7 +11,16 @@ public class Main {
 
         Setup.setupDefaults();
 
-        loadStandardLight();
+        loadScene(
+                new int[] {2, 40}, //normal light count, angle
+                0, //directional light count
+                3, //turnable color light count
+                0, // color light count
+                7, //sphere count in scene 1
+                0, //sphere count in scene 2
+                5, //monkey count in scene 1
+                0 //monkey count in scene 2
+        );
 
         GameController.setLoading(false);
 

@@ -6,6 +6,7 @@
 
 package lightEngine.graphics;
 
+import lightEngine.core.GameController;
 import lightEngine.gameObjects.modules.gui.GUIElement;
 import lightEngine.gameObjects.modules.renderable.Camera;
 import lightEngine.gameObjects.modules.renderable.ModuleRenderable3D;

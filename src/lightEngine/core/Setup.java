@@ -1,20 +1,30 @@
 package lightEngine.core;
 
+import lightEngine.Main;
+import lightEngine.core.events.EventController;
+import lightEngine.core.events.EventHandler;
 import lightEngine.gameObjects.GameObject;
 import lightEngine.gameObjects.modules.controls.ControllerManual;
 import lightEngine.gameObjects.modules.gui.GUIElement;
+import lightEngine.gameObjects.modules.gui.modules.buttons.GUIButton;
 import lightEngine.gameObjects.modules.interaction.AsyncInteraction;
 import lightEngine.gameObjects.modules.interaction.InteractionModule;
+import lightEngine.gameObjects.modules.interaction.StandardInteraction;
 import lightEngine.gameObjects.modules.physics.MovementModule;
 import lightEngine.gameObjects.modules.renderable.Camera;
 import lightEngine.gameObjects.modules.renderable.RenderModule;
+import lightEngine.gameObjects.modules.renderable.light.DirectionalLightSource;
+import lightEngine.gameObjects.modules.renderable.light.GlobalLightSource;
 import lightEngine.gameObjects.modules.renderable.light.SpotLightSource;
 import lightEngine.graphics.GraphicsController;
+import lightEngine.graphics.Renderer;
 import lightEngine.graphics.gui.GUIScreen;
 import lightEngine.graphics.gui.GUIScreenController;
 import lightEngine.graphics.renderable.LoadingScreen;
 import lightEngine.util.input.Input;
 import lightEngine.util.input.InputEventType;
+import lightEngine.util.math.MathHelper;
+import lightEngine.util.math.Randomizer;
 import lightEngine.util.math.vectors.Matrix3f;
 import lightEngine.util.math.vectors.VectorHelper;
 import org.lwjgl.input.Keyboard;
@@ -22,6 +32,10 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import static lightEngine.core.events.EventController.addEventHandler;
 
@@ -59,22 +73,28 @@ public class Setup {
             @Override
             public void onUpdate() {
                 super.onUpdate();
-                if (Input.inputEventTriggered("pauseGame")) {
-                    if (GameController.isGamePaused()) GameController.resumeGame();
-                    else GameController.pauseGame();
-                }
             }
 
             @Override
             public void render() {
                 super.render();
+                if (Input.inputEventTriggered("pauseGame")) {
+                    if (GameController.isGamePaused()) {
+                        GameController.resumeGame();
+                        EventController.triggerEvent("gameResumed");
+                    }
+                    else {
+                        GameController.pauseGame();
+                        EventController.triggerEvent("gamePaused");
+                    }
+                }
                 if (Input.inputEventTriggered("screenshot")) GraphicsController.takeScreenshot();
             }
         });
 
     }
 
-    public static void loadStandardShadow() {
+    public static void loadScene(int[] normalLight, int directionalLight, int turnableColorLights, int colorLights, int spheres1, int spheres2, int monkeys1, int monkeys2) {
 
         new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
                 .addModule(new MovementModule())
@@ -96,15 +116,259 @@ public class Setup {
                 .addModule(new RenderModule("rotatedPlane"))
                 .createModules();
 
-        new GameObject(new Vector3f(0, 2.5f, -20), new Vector3f())
-                .addModule(new RenderModule("monkey"))
-                .addModule(new InteractionModule(true, 10, Keyboard.KEY_M, "move down", new AsyncInteraction() {
-                    @Override
-                    public void interact() {
-                        parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, -0.01f, 0)});
-                    }
-                }))
-                .createModules();
+        normalLight[0] = (int) MathHelper.clamp(normalLight[0], 0, 8);
+
+        for (int i = 0; i < normalLight[0]; i++) {
+
+            new GameObject(new Vector3f(15 + ((i % 2 == 0) ? 2.5f * i : -2.5f * i), 30, 10), new Vector3f(45, 180, 0))
+                    .addModule(new RenderModule("sphere2"))
+                    .addModule(new SpotLightSource(
+                            new Vector4f(255, 255, 255, 500 / normalLight[0]), normalLight[1])
+                            .setSpecularLighting(false))
+                    .createModules();
+
+        }
+
+        directionalLight = (int) MathHelper.clamp(directionalLight, 0, 2);
+
+        for (int i = 0; i < directionalLight; i++) {
+
+            new GameObject(new Vector3f(35 - 35 * i, 30, 20 * i), new Vector3f(45, 180 + i * 90, 0))
+                    .addModule(new RenderModule("sphere2"))
+                    .addModule(new DirectionalLightSource(300 / directionalLight))
+                    .createModules();
+
+        }
+
+        turnableColorLights = (int) MathHelper.clamp(turnableColorLights, 0, 3);
+
+        boolean[] types = new boolean[3];
+        Vector3f[] positions = new Vector3f[] {new Vector3f(0, 20, 40), new Vector3f(-7.5f, 30, 40), new Vector3f(7.5f, 30, 40)};
+
+        for (int i = 0; i < turnableColorLights; i++) {
+
+            int type = Randomizer.getRandomInt(0, 2);
+
+            while (types[type]) {
+                type = Randomizer.getRandomInt(0, 2);
+            }
+
+            switch (type) {
+
+                case 0:
+
+                    new GameObject(positions[i], new Vector3f(0, 180, 0))
+                            .addModule(new RenderModule("sphere2"))
+                            .addModule(new SpotLightSource(new Vector4f(255, 0, 0, 400), 25)
+                                    .setSpecularLighting(false))
+                            .addModule(new InteractionModule(true, 20, Keyboard.KEY_Z, "zoom", 10, new AsyncInteraction() {
+
+                                public void interact() {
+
+                                    try {
+
+                                        SpotLightSource spotLightSource = (SpotLightSource) parent.getModule(SpotLightSource.class);
+                                        float modifier = (float) Math.toRadians(0.083);
+
+                                        for (int i = 0; i < 250; i++) {
+                                            spotLightSource.angle += modifier;
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 500; i++) {
+                                            spotLightSource.angle -= modifier;
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 250; i++) {
+                                            spotLightSource.angle += modifier;
+                                            Thread.sleep(10);
+                                        }
+
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                        System.exit(1);
+                                    }
+
+                                }
+
+                            }))
+                            .createModules();
+
+                    break;
+
+                case 1:
+
+                    new GameObject(positions[i], new Vector3f(0, 180, 0))
+                            .addModule(new RenderModule("sphere2"))
+                            .addModule(new SpotLightSource(new Vector4f(0, 255, 0, 400), 25)
+                                    .setSpecularLighting(false))
+                            .addModule(new InteractionModule(true, 20, Keyboard.KEY_R, "rotate", 10, new AsyncInteraction() {
+
+                                public void interact() {
+
+                                    try {
+
+                                        float yRotationDeg = -0.15f;
+                                        float zRotationDeg = -(360f / 700f);
+
+                                        parent.rotation.y += yRotationDeg;
+                                        parent.rotation.z += zRotationDeg;
+
+                                        float yRotation = (float) Math.toRadians(yRotationDeg);
+                                        float zRotation = (float) Math.toRadians(zRotationDeg);
+
+                                        Matrix3f yAxisRotationMatrix = new Matrix3f(
+                                                new Vector3f((float) Math.cos(yRotation), 0, (float) Math.sin(yRotation)),
+                                                new Vector3f(0, 1, 0),
+                                                new Vector3f((float) -Math.sin(yRotation), 0, (float) Math.cos(yRotation))
+                                        );
+
+                                        Matrix3f zAxisRotationMatrix = new Matrix3f(
+                                                new Vector3f((float) Math.cos(zRotation), (float) -Math.sin(zRotation), 0),
+                                                new Vector3f((float) Math.sin(zRotation), (float) Math.cos(zRotation), 0),
+                                                new Vector3f(0, 0, 1)
+                                        );
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.percentRotation = yAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 700; i++) {
+                                            parent.percentRotation = zAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        yAxisRotationMatrix = new Matrix3f(
+                                                new Vector3f((float) Math.cos(-yRotation), 0, (float) Math.sin(-yRotation)),
+                                                new Vector3f(0, 1, 0),
+                                                new Vector3f((float) -Math.sin(-yRotation), 0, (float) Math.cos(-yRotation))
+                                        );
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.percentRotation = yAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            Thread.sleep(10);
+                                        }
+
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                        System.exit(1);
+                                    }
+
+                                }
+
+                            }))
+                            .createModules();
+
+                    break;
+
+                case 2:
+
+                    new GameObject(positions[i], new Vector3f(0, 180, 0))
+                            .addModule(new RenderModule("sphere2"))
+                            .addModule(new SpotLightSource(new Vector4f(0, 0, 255, 400), 25)
+                                    .setSpecularLighting(false))
+                            .addModule(new InteractionModule(true, 20, Keyboard.KEY_M, "move", 10, new AsyncInteraction() {
+
+                                public void interact() {
+
+                                    try {
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0.05f, 0, 0)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, -0.05f, 0)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(-0.05f, 0, 0)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0.05f, 0)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, 0.05f)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 400; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, -0.05f)});
+                                            Thread.sleep(10);
+                                        }
+
+                                        Thread.sleep(200);
+
+                                        for (int i = 0; i < 200; i++) {
+                                            parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, 0.05f)});
+                                            Thread.sleep(10);
+                                        }
+
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                        System.exit(1);
+                                    }
+
+                                }
+
+                            }))
+                            .createModules();
+
+                    break;
+
+            }
+
+            types[type] = true;
+
+        }
+
+        //color
+
+        for (int i = 0; i < spheres1; i++) {
+
+            new GameObject(new Vector3f(20 + ((i % 2 == 0) ? 2.5f * i : -2.5f * i), 10 + Randomizer.getRandomInt(-1, 1) * 5, 30), new Vector3f())
+                    .addModule(new RenderModule("sphere"))
+                    .createModules();
+
+        }
+
+        for (int i = 0; i < monkeys1; i++) {
+
+            new GameObject(new Vector3f(20 + ((i % 2 == 0) ? 5f * i : -5f * i), 2.5f, 30 + Randomizer.getRandomInt(-2, 5) * 5), new Vector3f())
+                    .addModule(new RenderModule("rotatedMonkey"))
+                    .createModules();
+
+        }
+
+    }
+
+    public static void loadStandardShadow() {
 
         new GameObject(new Vector3f(20, 10, 30), new Vector3f())
                 .addModule(new RenderModule("sphere"))
@@ -113,14 +377,6 @@ public class Setup {
         new GameObject(new Vector3f(10, 15, 30), new Vector3f())
                 .addModule(new RenderModule("sphere"))
                 .createModules();
-
-        //Lights
-
-        //Directional Light
-        /*new GameObject(new Vector3f(35, 30, 0), new Vector3f(45, 180, 0))
-                .addModule(new RenderModule("sphere2"))
-                .addModule(new DirectionalLightSource(300))
-                .createModules();*/
 
         //Basic Light
         new GameObject(new Vector3f(15, 30, 10), new Vector3f(45, 180, 0))
@@ -132,27 +388,25 @@ public class Setup {
 
     }
 
-    public static void loadStandardLight() {
+    public static void loadDirectionalShadow() {
 
-        new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
-                .addModule(new MovementModule())
+        new GameObject(new Vector3f(20, 10, 30), new Vector3f())
                 .addModule(new RenderModule("sphere"))
-                .addModule(
-                        new ControllerManual(
-                                new float[]{0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0}, //forward, backward, left, right, down, up, jump
-                                true //Can fly
-                        )
-                )
-                .addModule(new Camera())
                 .createModules();
 
-        new GameObject(new Vector3f(0, 0, 0), new Vector3f())
-                .addModule(new RenderModule("bigPlane", true))
+        new GameObject(new Vector3f(10, 15, 30), new Vector3f())
+                .addModule(new RenderModule("sphere"))
                 .createModules();
 
-        new GameObject(new Vector3f(0, 10, 60), new Vector3f())
-                .addModule(new RenderModule("rotatedPlane"))
+        //Directional Light
+        new GameObject(new Vector3f(35, 30, 0), new Vector3f(45, 180, 0))
+                .addModule(new RenderModule("sphere2"))
+                .addModule(new DirectionalLightSource(300))
                 .createModules();
+
+    }
+
+    public static void loadStandardLight() {
 
         new GameObject(new Vector3f(0, 2.5f, -20), new Vector3f())
                 .addModule(new RenderModule("monkey"))
@@ -172,7 +426,7 @@ public class Setup {
                 .addModule(new RenderModule("sphere"))
                 .createModules();
 
-        new GameObject(new Vector3f(-10, 30, 10), new Vector3f(45, 180, 0))
+        new GameObject(new Vector3f(15, 30, 10), new Vector3f(45, 180, 0))
                 .addModule(new RenderModule("sphere2"))
                 .addModule(new SpotLightSource(
                         new Vector4f(255, 255, 255, 100), 40)
@@ -369,32 +623,12 @@ public class Setup {
 
     public static void loadDoubleShadow() {
 
-        new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
-                .addModule(new MovementModule())
-                .addModule(new RenderModule("sphere"))
-                .addModule(
-                        new ControllerManual(
-                                new float[]{0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0}, //forward, backward, left, right, down, up, jump
-                                true //Can fly
-                        )
-                )
-                .addModule(new Camera())
-                .createModules();
-
-        new GameObject(new Vector3f(0, 0, 0), new Vector3f())
-                .addModule(new RenderModule("bigPlane", true))
-                .createModules();
-
-        new GameObject(new Vector3f(0, 10, 60), new Vector3f())
-                .addModule(new RenderModule("rotatedPlane"))
-                .createModules();
-
         new GameObject(new Vector3f(0, 2.5f, -20), new Vector3f())
                 .addModule(new RenderModule("monkey"))
                 .addModule(new InteractionModule(true, 10, Keyboard.KEY_M, "move down", new AsyncInteraction() {
                     @Override
                     public void interact() {
-                        parent.position = VectorHelper.sumVectors(new Vector3f[] {parent.position, new Vector3f(0, -0.01f, 0)});
+                        parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, -0.01f, 0)});
                     }
                 }))
                 .createModules();
@@ -433,26 +667,6 @@ public class Setup {
     }
 
     public static void loadQuintupleShadow() {
-
-        new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
-                .addModule(new MovementModule())
-                .addModule(new RenderModule("sphere"))
-                .addModule(
-                        new ControllerManual(
-                                new float[]{0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0}, //forward, backward, left, right, down, up, jump
-                                true //Can fly
-                        )
-                )
-                .addModule(new Camera())
-                .createModules();
-
-        new GameObject(new Vector3f(0, 0, 0), new Vector3f())
-                .addModule(new RenderModule("bigPlane", true))
-                .createModules();
-
-        new GameObject(new Vector3f(0, 10, 60), new Vector3f())
-                .addModule(new RenderModule("rotatedPlane"))
-                .createModules();
 
         new GameObject(new Vector3f(0, 2.5f, -20), new Vector3f())
                 .addModule(new RenderModule("monkey"))
