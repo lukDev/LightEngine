@@ -21,26 +21,11 @@ import static org.lwjgl.util.glu.GLU.gluLookAt;
 
 public class Camera extends ModuleRenderable {
 
-    public float zoom = 0;
-    private Vector3f eye;
-
     public Camera() {
         super();
     }
 
-    public void onUpdate() {
-
-        if (parent != null)
-            if (!(Float.isNaN(parent.position.x) || Float.isNaN(parent.position.y) || Float.isNaN(parent.position.z)))
-                eye = VectorHelper.sumVectors(
-                        new Vector3f[]{VectorHelper.multiplyVectorByFloat(
-                                new Vector3f(parent.percentRotation.x,
-                                        parent.percentRotation.y,
-                                        -parent.percentRotation.z),
-                                -zoom),
-                                parent.position});
-
-    }
+    public void onUpdate() {}
 
     public Matrix4f getViewProjectionMatrix() {
 

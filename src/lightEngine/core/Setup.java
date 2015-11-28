@@ -216,9 +216,6 @@ public class Setup {
                                         float yRotationDeg = -0.15f;
                                         float zRotationDeg = -(360f / 700f);
 
-                                        parent.rotation.y += yRotationDeg;
-                                        parent.rotation.z += zRotationDeg;
-
                                         float yRotation = (float) Math.toRadians(yRotationDeg);
                                         float zRotation = (float) Math.toRadians(zRotationDeg);
 
@@ -236,6 +233,7 @@ public class Setup {
 
                                         for (int i = 0; i < 200; i++) {
                                             parent.percentRotation = yAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            parent.rotation.y -= yRotationDeg;
                                             Thread.sleep(10);
                                         }
 
@@ -243,6 +241,7 @@ public class Setup {
 
                                         for (int i = 0; i < 700; i++) {
                                             parent.percentRotation = zAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            parent.rotation.z -= zRotationDeg;
                                             Thread.sleep(10);
                                         }
 
@@ -256,6 +255,7 @@ public class Setup {
 
                                         for (int i = 0; i < 200; i++) {
                                             parent.percentRotation = yAxisRotationMatrix.multiplyByVector(parent.percentRotation);
+                                            parent.rotation.y += yRotationDeg;
                                             Thread.sleep(10);
                                         }
 

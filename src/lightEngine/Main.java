@@ -12,7 +12,7 @@ public class Main {
         Setup.setupDefaults();
 
         loadScene(
-                new int[] {2, 40}, //normal light count, angle
+                new int[] {1, 40}, //normal light count, angle
                 0, //directional light count
                 3, //turnable color light count
                 0, // color light count
