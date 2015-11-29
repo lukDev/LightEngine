@@ -94,7 +94,8 @@ public class Setup {
 
     }
 
-    public static void loadScene(int[] normalLight, int directionalLight, int turnableColorLights, int colorLights, int spheres1, int spheres2, int monkeys1, int monkeys2) {
+    public static void loadScene(int[] normalLight, int directionalLight, int turnableColorLights, int[] colorLights,
+                                 int spheres1, int spheres2, int monkeys1, int monkeys2, int objects3) {
 
         new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
                 .addModule(new MovementModule())
@@ -143,7 +144,7 @@ public class Setup {
         turnableColorLights = (int) MathHelper.clamp(turnableColorLights, 0, 3);
 
         boolean[] types = new boolean[3];
-        Vector3f[] positions = new Vector3f[] {new Vector3f(0, 20, 40), new Vector3f(-7.5f, 30, 40), new Vector3f(7.5f, 30, 40)};
+        Vector3f[] positions = new Vector3f[] {new Vector3f(0, 20, 45), new Vector3f(-7.5f, 30, 45), new Vector3f(7.5f, 30, 45)};
 
         for (int i = 0; i < turnableColorLights; i++) {
 
@@ -159,7 +160,7 @@ public class Setup {
 
                     new GameObject(positions[i], new Vector3f(0, 180, 0))
                             .addModule(new RenderModule("sphere2"))
-                            .addModule(new SpotLightSource(new Vector4f(255, 0, 0, 400), 25)
+                            .addModule(new SpotLightSource(new Vector4f(255, 0, 0, 400), 30)
                                     .setSpecularLighting(false))
                             .addModule(new InteractionModule(true, 20, Keyboard.KEY_Z, "zoom", 10, new AsyncInteraction() {
 
@@ -205,7 +206,7 @@ public class Setup {
 
                     new GameObject(positions[i], new Vector3f(0, 180, 0))
                             .addModule(new RenderModule("sphere2"))
-                            .addModule(new SpotLightSource(new Vector4f(0, 255, 0, 400), 25)
+                            .addModule(new SpotLightSource(new Vector4f(0, 255, 0, 400), 30)
                                     .setSpecularLighting(false))
                             .addModule(new InteractionModule(true, 20, Keyboard.KEY_R, "rotate", 10, new AsyncInteraction() {
 
@@ -275,7 +276,7 @@ public class Setup {
 
                     new GameObject(positions[i], new Vector3f(0, 180, 0))
                             .addModule(new RenderModule("sphere2"))
-                            .addModule(new SpotLightSource(new Vector4f(0, 0, 255, 400), 25)
+                            .addModule(new SpotLightSource(new Vector4f(0, 0, 255, 400), 30)
                                     .setSpecularLighting(false))
                             .addModule(new InteractionModule(true, 20, Keyboard.KEY_M, "move", 10, new AsyncInteraction() {
 
@@ -348,7 +349,29 @@ public class Setup {
 
         }
 
-        //color
+        colorLights[0] = (int) MathHelper.clamp(colorLights[0], 0, 8);
+
+        for (int i = 0; i < colorLights[0]; i++) {
+
+            Vector3f position = new Vector3f(
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 35,
+                    25 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 10,
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 35
+            );
+
+            Vector4f color = new Vector4f(
+                    Randomizer.getRandomInt(0, 255),
+                    Randomizer.getRandomInt(0, 255),
+                    Randomizer.getRandomInt(0, 255),
+                    800 / colorLights[0]
+            );
+
+            new GameObject(position, new Vector3f(90, 0, 0))
+                    .addModule(new RenderModule("sphere2"))
+                    .addModule(new SpotLightSource(color, colorLights[1]))
+                    .createModules();
+
+        }
 
         for (int i = 0; i < spheres1; i++) {
 
@@ -366,8 +389,55 @@ public class Setup {
 
         }
 
+        for (int i = 0; i < spheres2; i++) {
+
+            Vector3f position = new Vector3f(
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 40,
+                    ((float) Randomizer.getRandomInt(0, 100) / 100f) * 15,
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 40
+            );
+
+            new GameObject(position, new Vector3f())
+                    .addModule(new RenderModule("sphere"))
+                    .createModules();
+
+        }
+
+        for (int i = 0; i < monkeys2; i++) {
+
+            String renderName = (Randomizer.getRandomInt(0, 1) == 0) ? "monkey" : "rotatedMonkey";
+
+            Vector3f position = new Vector3f(
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 40,
+                    ((float) Randomizer.getRandomInt(0, 100) / 100f) * 15,
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 40
+            );
+
+            new GameObject(position, new Vector3f())
+                    .addModule(new RenderModule(renderName))
+                    .createModules();
+
+        }
+
+        for (int i = 0; i < objects3; i++) {
+
+            String renderName = (Randomizer.getRandomInt(0, 1) == 0) ? "sphere" : "rotatedMonkey";
+
+            Vector3f position = new Vector3f(
+                    -10 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 20,
+                    14f + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 22,
+                    50 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 12
+            );
+
+            new GameObject(position, new Vector3f())
+                    .addModule(new RenderModule(renderName))
+                    .createModules();
+
+        }
+
     }
 
+    @Deprecated
     public static void loadStandardShadow() {
 
         new GameObject(new Vector3f(20, 10, 30), new Vector3f())
