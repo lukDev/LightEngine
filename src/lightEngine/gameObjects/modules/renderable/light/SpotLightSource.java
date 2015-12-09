@@ -34,8 +34,8 @@ public class SpotLightSource extends LightSource {
 
         super(color);
 
-        if (angle == -1) this.angle = (float) Math.toRadians(179.99);
-        else this.angle = (float) Math.toRadians(MathHelper.clamp(angle, 0, 179.99));
+        if (angle == -1) this.angle = (float) Math.toRadians(179.99) / 2;
+        else this.angle = (float) Math.toRadians(MathHelper.clamp(angle, 0, 179.99)) / 2;
 
         this.transition = (float) MathHelper.clamp(transition, 0, 1);
 

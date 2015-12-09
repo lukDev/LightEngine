@@ -10,15 +10,15 @@ public class Main {
         setupDefaults();
 
         loadScene(
-                new int[] {2, 40}, //normal light count, angle
-                0, //directional light count
-                3, //turnable color light count (scene 3)
-                new int[] {3, 50}, // color light count, angle
-                5, //sphere count in scene 1
-                5, //sphere count in scene 2
-                3, //monkey count in scene 1
-                3, //monkey count in scene 2
-                4 //object(sphere or monkey) count in scene 3
+                new int[] {1, 80}, //normal light count, angle (scene 1)
+                0, //directional light count (complete scene)
+                new int[] {0, 65}, //turnable color light count, angle (scene 3)
+                new int[] {0, 90}, // color light count, angle (scene 2)
+                1, //sphere count in scene 1
+                0, //sphere count in scene 2
+                0, //monkey count in scene 1
+                0, //monkey count in scene 2
+                0 //object(sphere or monkey) count in scene 3
         );
 
         setLoading(false);
