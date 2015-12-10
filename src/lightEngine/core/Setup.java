@@ -94,7 +94,7 @@ public class Setup {
 
     }
 
-    public static void loadScene(int[] normalLight, int directionalLight, int[] turnableColorLights, int[] colorLights,
+    public static void loadScene(int[] normalLight, int directionalLight, int[] turnableColorLights, int[] colorLights, int[] moveableLights,
                                  int spheres1, int spheres2, int monkeys1, int monkeys2, int objects3) {
 
         new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
@@ -369,6 +369,83 @@ public class Setup {
             new GameObject(position, new Vector3f(90, 0, 0))
                     .addModule(new RenderModule("sphere2"))
                     .addModule(new SpotLightSource(color, colorLights[1]))
+                    .createModules();
+
+        }
+
+        moveableLights[0] = (int) MathHelper.clamp(moveableLights[0], 0, 8);
+
+        for (int i = 0; i < moveableLights[0]; i++) {
+
+            Vector3f position = new Vector3f(
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 35,
+                    25 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 10,
+                    -45 + ((float) Randomizer.getRandomInt(0, 100) / 100f) * 35
+            );
+
+            new GameObject(position, new Vector3f(90, 0, 0))
+                    .addModule(new RenderModule("sphere2"))
+                    .addModule(new SpotLightSource(new Vector4f(255, 255, 255, 600 / moveableLights[0]), moveableLights[1]))
+                    .addModule(new InteractionModule(true, 10, Keyboard.KEY_M, "move", new AsyncInteraction() {
+                        @Override
+                        public void interact() {
+
+                            try {
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0.05f, 0, 0)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, -0.05f, 0)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(-0.05f, 0, 0)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0.05f, 0)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, 0.05f)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 800; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, -0.05f)});
+                                    Thread.sleep(10);
+                                }
+
+                                Thread.sleep(200);
+
+                                for (int i = 0; i < 400; i++) {
+                                    parent.position = VectorHelper.sumVectors(new Vector3f[]{parent.position, new Vector3f(0, 0, 0.05f)});
+                                    Thread.sleep(10);
+                                }
+
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                System.exit(1);
+                            }
+
+                        }
+                    }))
                     .createModules();
 
         }
