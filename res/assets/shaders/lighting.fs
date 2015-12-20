@@ -283,6 +283,8 @@ void main(void) {
 
                     vec2 newShadowMapPosition = vec2((normalizedDisplayPosition.x - 0.7) * (10 / 3), normalizedDisplayPosition.y * (10 / 3));
 
+                    newShadowMapPosition = newShadowMapPosition * 1.1125;
+
                     float depthValue;
 
                     if (shadowMapToDisplay == 0)
