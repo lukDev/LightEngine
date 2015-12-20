@@ -47,6 +47,8 @@ public class GraphicsController {
     private static int height;
     private static String title;
     private static int fps;
+    public static int shadowMapToDisplay = -1;
+    public static boolean shadowMapFullScreen = false;
 
     /**
      * Creates a new window with OpenGL context, loads all graphics related preferences.
@@ -86,6 +88,17 @@ public class GraphicsController {
 
         }
 
+        Input.assignInputEvent("shadowMap-1", true, InputEventType.ACTIVATED, Keyboard.KEY_0);
+        Input.assignInputEvent("shadowMap0", true, InputEventType.ACTIVATED, Keyboard.KEY_1);
+        Input.assignInputEvent("shadowMap1", true, InputEventType.ACTIVATED, Keyboard.KEY_2);
+        Input.assignInputEvent("shadowMap2", true, InputEventType.ACTIVATED, Keyboard.KEY_3);
+        Input.assignInputEvent("shadowMap3", true, InputEventType.ACTIVATED, Keyboard.KEY_4);
+        Input.assignInputEvent("shadowMap4", true, InputEventType.ACTIVATED, Keyboard.KEY_5);
+        Input.assignInputEvent("shadowMap5", true, InputEventType.ACTIVATED, Keyboard.KEY_6);
+        Input.assignInputEvent("shadowMap6", true, InputEventType.ACTIVATED, Keyboard.KEY_7);
+        Input.assignInputEvent("shadowMap7", true, InputEventType.ACTIVATED, Keyboard.KEY_8);
+        Input.assignInputEvent("shadowMapFull", true, InputEventType.ACTIVATED, Keyboard.KEY_P);
+
         initializeOpenGL();
 
     }
@@ -114,6 +127,36 @@ public class GraphicsController {
             else setupFullscreen();
 
         } else wasResized = false;
+
+        if (Input.inputEventTriggered("shadowMap-1"))
+            shadowMapToDisplay = -1;
+
+        if (Input.inputEventTriggered("shadowMap0"))
+            shadowMapToDisplay = 0;
+
+        if (Input.inputEventTriggered("shadowMap1"))
+            shadowMapToDisplay = 1;
+
+        if (Input.inputEventTriggered("shadowMap2"))
+            shadowMapToDisplay = 2;
+
+        if (Input.inputEventTriggered("shadowMap3"))
+            shadowMapToDisplay = 3;
+
+        if (Input.inputEventTriggered("shadowMap4"))
+            shadowMapToDisplay = 4;
+
+        if (Input.inputEventTriggered("shadowMap5"))
+            shadowMapToDisplay = 5;
+
+        if (Input.inputEventTriggered("shadowMap6"))
+            shadowMapToDisplay = 6;
+
+        if (Input.inputEventTriggered("shadowMap7"))
+            shadowMapToDisplay = 7;
+
+        if (Input.inputEventTriggered("shadowMapFull"))
+            shadowMapFullScreen = !shadowMapFullScreen;
 
         Display.update();
         if (!mEnchmarkEnabled) Display.sync(fps);

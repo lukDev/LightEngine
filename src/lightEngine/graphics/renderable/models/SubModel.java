@@ -9,6 +9,7 @@ package lightEngine.graphics.renderable.models;
 import lightEngine.graphics.renderable.materials.Material3D;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
 
@@ -19,6 +20,7 @@ public class SubModel {
     public ArrayList<Vector3f> normals;
     public ArrayList<Vector2f> uvs;
     public ArrayList<Face> faces;
+    public Vector4f color;
 
     public SubModel() {
         vertices = new ArrayList<>();
@@ -34,6 +36,12 @@ public class SubModel {
         normals = new ArrayList<>();
         uvs = new ArrayList<>();
         faces = new ArrayList<>();
+    }
+
+    public void setColor(Vector4f color) {
+
+        this.color = color;
+
     }
 
 }

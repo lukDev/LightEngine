@@ -15,6 +15,7 @@ import lightEngine.graphics.renderable.models.SubModel;
 import lightEngine.util.rendering.ModelHelper;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ public class RenderModule extends ModuleRenderable3D {
     public String modelFileName;
     transient boolean isStatic, displayListsGenerated;
     transient int displayListIndex;
+    public Vector4f color;
 
     public RenderModule(Model model) {
         this(model, true);
@@ -57,6 +59,8 @@ public class RenderModule extends ModuleRenderable3D {
 
         BoundingBox boundingBox = new BoundingBox(vert, new Vector3f(-vert.x, -vert.y, -vert.z));
         parent.addBoundingBox(boundingBox);
+
+        model.setColor(color);
 
     }
 
@@ -120,7 +124,7 @@ public class RenderModule extends ModuleRenderable3D {
 
             for (int i = 0; i < model.subModels.size(); i++) {
 
-                Renderer.renderObject3D(displayListIndex + i, parent.position, parent.rotation, model.subModels.get(i).material, 0);
+                Renderer.renderObject3D(displayListIndex + i, parent.position, parent.rotation, model.subModels.get(i).material, model.subModels.get(i).color, 0);
 
             }
 
@@ -167,11 +171,18 @@ public class RenderModule extends ModuleRenderable3D {
 
                 }
 
-                Renderer.renderObject3D(renderVertices, renderNormals, renderUVs, subModel.material, Renderer.RENDER_TRIANGLES, 0);
+                Renderer.renderObject3D(renderVertices, renderNormals, renderUVs, subModel.material, subModel.color, Renderer.RENDER_TRIANGLES, 0);
 
             }
 
         }
+
+    }
+
+    public RenderModule setColor(Vector4f color) {
+
+        this.color = color;
+        return this;
 
     }
 

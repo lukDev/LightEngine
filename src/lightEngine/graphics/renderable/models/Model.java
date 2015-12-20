@@ -9,6 +9,7 @@ package lightEngine.graphics.renderable.models;
 import lightEngine.util.math.vectors.VectorHelper;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import java.util.ArrayList;
 
@@ -116,6 +117,13 @@ public class Model {
 
         return VectorHelper.sumVectors(new Vector3f[]
           {VectorHelper.divideVectorByFloat(VectorHelper.subtractVectors(extremeVertexPositions[1], extremeVertexPositions[0]), 2), extremeVertexPositions[0]});
+
+    }
+
+    public void setColor(Vector4f color) {
+
+        for (SubModel subModel : subModels)
+            subModel.setColor(color);
 
     }
 

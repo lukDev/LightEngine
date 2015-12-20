@@ -33,6 +33,9 @@ uniform vec3 cameraPosition;
 uniform vec3[3] reflectionAssets;
 uniform int materialType;
 uniform float materialTransparency;
+uniform int shadowMapToDisplay;
+uniform mat4 viewProjectionMatrix;
+uniform int shadowMapFullScreen;
 
 void main(void) {
 
@@ -235,11 +238,83 @@ void main(void) {
 
         fragColor += ambientLightedTextureColor;
 
-        /*vec4 shadowMapPosition = shadowMapCoordinates[count] * vec4(vertex, 1);
-        vec3 normalizedShadowMapPosition = shadowMapPosition.xyz / shadowMapPosition.w;
-        normalizedShadowMapPosition = normalizedShadowMapPosition * 0.5 + 0.5;
+    }
 
-        fragColor = texture2D(shadowMap0, normalizedShadowMapPosition.xy);*/
+    if (shadowMapToDisplay != -1) {
+
+        vec4 displayPosition = viewProjectionMatrix * vec4(vertex, 1);
+        vec3 normalizedDisplayPosition = displayPosition.xyz / displayPosition.w;
+        normalizedDisplayPosition = normalizedDisplayPosition * 0.5 + 0.5;
+
+        if (shadowMapFullScreen == 1) {
+
+            float depthValue;
+
+            if (shadowMapToDisplay == 0)
+                depthValue = (texture2D(shadowMap0, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 1)
+                depthValue = (texture2D(shadowMap1, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 2)
+                depthValue = (texture2D(shadowMap2, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 3)
+                depthValue = (texture2D(shadowMap3, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 4)
+                depthValue = (texture2D(shadowMap4, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 5)
+                depthValue = (texture2D(shadowMap5, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 6)
+                depthValue = (texture2D(shadowMap6, normalizedDisplayPosition.xy).r);
+
+            else if (shadowMapToDisplay == 7)
+                depthValue = (texture2D(shadowMap7, normalizedDisplayPosition.xy).r);
+
+            fragColor = vec3(depthValue);
+
+        } else {
+
+            if (normalizedDisplayPosition.x >= 0.7) {
+                if (normalizedDisplayPosition.y <= 0.3) {
+
+                    vec2 newShadowMapPosition = vec2((normalizedDisplayPosition.x - 0.7) * (10 / 3), normalizedDisplayPosition.y * (10 / 3));
+
+                    float depthValue;
+
+                    if (shadowMapToDisplay == 0)
+                        depthValue = (texture2D(shadowMap0, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 1)
+                        depthValue = (texture2D(shadowMap1, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 2)
+                        depthValue = (texture2D(shadowMap2, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 3)
+                        depthValue = (texture2D(shadowMap3, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 4)
+                        depthValue = (texture2D(shadowMap4, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 5)
+                        depthValue = (texture2D(shadowMap5, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 6)
+                        depthValue = (texture2D(shadowMap6, newShadowMapPosition.xy).r);
+
+                    else if (shadowMapToDisplay == 7)
+                        depthValue = (texture2D(shadowMap7, newShadowMapPosition.xy).r);
+
+                    fragColor = vec3(depthValue);
+
+                }
+            }
+
+        }
 
     }
 

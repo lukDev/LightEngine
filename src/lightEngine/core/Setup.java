@@ -97,6 +97,10 @@ public class Setup {
     public static void loadScene(int[] normalLight, int directionalLight, int[] turnableColorLights, int[] colorLights, int[] moveableLights,
                                  int spheres1, int spheres2, int monkeys1, int monkeys2, int objects3) {
 
+        new GameObject(new Vector3f(), new Vector3f())
+                .addModule(new RenderModule("skybox").setColor(new Vector4f(0.392f, 0.584f, 0.929f, 1)))
+                .createModules();
+
         new GameObject(new Vector3f(0, 5, 0), new Vector3f(0, 0, 0))
                 .addModule(new MovementModule())
                 .addModule(new RenderModule("sphere"))

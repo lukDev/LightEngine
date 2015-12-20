@@ -6,34 +6,30 @@
 
 package lightEngine.graphics;
 
-import lightEngine.gameObjects.modules.Module;
-import lightEngine.gameObjects.modules.renderable.Camera;
 import lightEngine.gameObjects.modules.renderable.ModuleRenderable3D;
 import lightEngine.gameObjects.modules.renderable.light.DirectionalLightSource;
 import lightEngine.gameObjects.modules.renderable.light.LightSource;
 import lightEngine.gameObjects.modules.renderable.light.SpotLightSource;
 import lightEngine.graphics.renderable.materials.Material2D;
 import lightEngine.graphics.renderable.materials.Material3D;
+import lightEngine.util.data.DataTypeHelper;
 import lightEngine.util.math.MathHelper;
+import lightEngine.util.math.NumberFormatHelper;
 import lightEngine.util.math.vectors.VectorHelper;
 import lightEngine.util.rendering.ShaderHelper;
 import lightEngine.util.rendering.TextureHelper;
-import lightEngine.util.resources.PreferenceHelper;
 import lightEngine.util.resources.ResourceHelper;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GLContext;
-import org.lwjgl.util.vector.Matrix;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 import org.newdawn.slick.opengl.Texture;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.nio.*;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.lwjgl.opengl.EXTFramebufferObject.*;
@@ -42,8 +38,6 @@ import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 public class Renderer {
 
@@ -481,6 +475,16 @@ public class Renderer {
         ShaderHelper.useShader("lighting");
         shadowCalculation = false;
 
+        int shadowMapToDisplay;
+
+        if (GraphicsController.shadowMapToDisplay >= currentRenderQueue.lightSources.size())
+            shadowMapToDisplay = -1;
+
+        else shadowMapToDisplay = GraphicsController.shadowMapToDisplay;
+
+        glUniform1i(glGetUniformLocation(ShaderHelper.shaderPrograms.get("lighting"), "shadowMapToDisplay"), shadowMapToDisplay);
+        glUniform1i(glGetUniformLocation(ShaderHelper.shaderPrograms.get("lighting"), "shadowMapFullScreen"), DataTypeHelper.booleanToInteger(GraphicsController.shadowMapFullScreen));
+
         glUniform1f(glGetUniformLocation(ShaderHelper.shaderPrograms.get("lighting"), "renderDistance"), GraphicsController.renderDistance);
 
         matrixBuffer.clear();
@@ -532,7 +536,7 @@ public class Renderer {
      * @param mode                  The render mode to be used
      * @param emissiveLightStrength The strength of light that is emitted by the rendered object
      */
-    public static void renderObject3D(List<Vector3f> vertices, List<Vector3f> normals, List<Vector2f> uvs, Material3D material, int mode, float emissiveLightStrength) {
+    public static void renderObject3D(List<Vector3f> vertices, List<Vector3f> normals, List<Vector2f> uvs, Material3D material, Vector4f color, int mode, float emissiveLightStrength) {
 
         int shader = shadowCalculation ? ShaderHelper.shaderPrograms.get("shadowMap") : ShaderHelper.shaderPrograms.get("lighting");
 
@@ -540,6 +544,8 @@ public class Renderer {
 
             if (GraphicsController.isBlackAndWhite)
                 glUniform4f(glGetUniformLocation(shader, "color"), 1, 1, 1, 1);
+            if (color != null)
+                glUniform4f(glGetUniformLocation(shader, "color"), color.x, color.y, color.z, color.w);
             glUniform1i(glGetUniformLocation(shader, "lightSourceCount"), currentRenderQueue.lightSources.size());
             emissiveLightStrength = (float) MathHelper.clamp(emissiveLightStrength, 0, 1);
             glUniform1f(glGetUniformLocation(shader, "emissiveLightStrength"), emissiveLightStrength);
@@ -674,7 +680,7 @@ public class Renderer {
      * @param material              The material to be used
      * @param emissiveLightStrength The strength of light that is emitted by the rendered object
      */
-    public static void renderObject3D(int displayListIndex, Vector3f modelPosition, Vector3f modelRotation, Material3D material, float emissiveLightStrength) {
+    public static void renderObject3D(int displayListIndex, Vector3f modelPosition, Vector3f modelRotation, Material3D material, Vector4f color, float emissiveLightStrength) {
 
         int shader = shadowCalculation ? ShaderHelper.shaderPrograms.get("shadowMap") : ShaderHelper.shaderPrograms.get("lighting");
 
@@ -682,6 +688,8 @@ public class Renderer {
 
             if (GraphicsController.isBlackAndWhite || !material.hasTexture())
                 glUniform4f(glGetUniformLocation(shader, "color"), 1, 1, 1, 1);
+            if (color != null)
+                glUniform4f(glGetUniformLocation(shader, "color"), color.x, color.y, color.z, color.w);
             glUniform1i(glGetUniformLocation(shader, "lightSourceCount"), currentRenderQueue.lightSources.size());
             emissiveLightStrength = (float) MathHelper.clamp(emissiveLightStrength, 0, 1);
             glUniform1f(glGetUniformLocation(shader, "emissiveLightStrength"), emissiveLightStrength);
