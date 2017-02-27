@@ -1,9 +1,7 @@
 Light Engine
 ============
 
-A lightweight 3D java game engine focusing mostly on graphics. 
-The imported physics engine the original project "mEngine" features will not be found here since it would only
-make the code more complex.
+A lightweight 3D java game engine focusing mostly on graphics. The imported physics engine the original project "mEngine" features will not be found here since it would only make the code more complex.
 
 Most important features are:
 -fully functional self-written multi-lighting system that allows for up to 32 light sources
